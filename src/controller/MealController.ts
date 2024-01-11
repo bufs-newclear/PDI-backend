@@ -1,7 +1,6 @@
 import { AppDataSource } from "../data-source";
 import { NextFunction, Request, Response } from "express";
-import { User } from "../entity/User";
-import { Meal } from "../entity/Meal";
+import { User, Meal } from "../entity";
 
 export class MealController {
 
@@ -14,7 +13,6 @@ export class MealController {
 
     async one(request: Request, response: Response, next: NextFunction) {
         const id = parseInt(request.params.id);
-
 
         const meal = await this.mealRepository.findOne({
             where: { id }
@@ -36,7 +34,7 @@ export class MealController {
 
         meals.forEach(meal => {
             const reactions = await this.mealRepository.find({
-                where: { meal: }
+                where: { meal:  }
             })
         });
     }

@@ -21,7 +21,7 @@ export class Ranking {
     @OneToOne(() => Meal, (meal) => meal.id)
     meal: Meal
 
-    @Column({ type: 'enum', default: rankScope.Weekly })
+    @Column({ type: 'enum', enum: rankScope, default: rankScope.Weekly })
     rankScope: rankScope;
 
     @Column()

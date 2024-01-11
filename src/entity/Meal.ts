@@ -17,7 +17,7 @@ export class Meal {
     @Column()
     name: string;
 
-    @Column({ type: 'enum', default: MealType.Lunch })
+    @Column({ type: 'enum', enum: MealType, default: MealType.Lunch })
     mealType: MealType;
     
     @Column({ nullable: true })
