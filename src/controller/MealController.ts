@@ -1,6 +1,7 @@
 import { AppDataSource } from "../data-source";
 import { NextFunction, Request, Response } from "express";
 import { User, Meal } from "../entity";
+import { datestring } from "../utils";
 
 export class MealController {
 
@@ -27,16 +28,20 @@ export class MealController {
     async today(request: Request, response: Response, next: NextFunction) {
         // TODO
 
-        const today = '';  // TODO
+        // const today = datestring();
+        const today = "2023-10-13";
         const meals = await this.mealRepository.find({
             where: { createdAt: today }
         });
 
-        meals.forEach(meal => {
-            const reactions = await this.mealRepository.find({
-                where: { meal:  }
-            })
-        });
+        // meals.forEach(meal => {
+        //     const reactions = await this.mealRepository.find({
+        //         where: { meal:  }
+        //     })
+        // });
+        // console.log(meals.toString);
+
+        return meals;
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
