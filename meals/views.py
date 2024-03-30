@@ -4,11 +4,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import UnitMenu
 from .serializers import UnitMenuSerializer
+from .permissions import HasEditPermission
 
 
 class UnitMenuViewSet(viewsets.ModelViewSet):
     queryset = UnitMenu.objects.all()
     serializer_class = UnitMenuSerializer
+    permission_classes = [HasEditPermission]
 
 
 class DailyMenuViewSet(APIView):
