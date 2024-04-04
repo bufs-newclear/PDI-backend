@@ -18,21 +18,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         required=True,
         validators=[validate_password], # 비밀번호에 대한 검증
     )
-    password2 = serializers.CharField( # 비밀번호 확인을 위한 필드
-        write_only=True,
-        required=True,
-    )
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password2')
-
-    def validate(self, data): # password과 password2의 일치 여부 확인
-        if data['password'] != data['password2']:
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."})
-        
-        return data
+        fields = ('username', 'email', 'password')
 
     def create(self, validated_data):
         # CREATE 요청에 대해 create 메서드를 오버라이딩하여, 유저를 생성하고 토큰도 생성하게 해준다.
