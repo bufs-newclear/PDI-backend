@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.views import APIView
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 class UnitMenuViewSet(viewsets.ModelViewSet):
     queryset = UnitMenu.objects.all()
     serializer_class = UnitMenuSerializer
-    permission_classes = [HasEditPermission]
+    permission_classes = [HasEditPermission]  ##PROD##
 
 
 class DailyMenuViewSet(APIView):
@@ -37,16 +38,26 @@ class DailyMenuViewSet(APIView):
 class MealLikeViewSet(viewsets.ModelViewSet):
     queryset = UserMealLike.objects.all()
     serializer_class = UserMealLikeSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     # 좋아요를 누를 때
     def create(self, request):
+        if not request.user.is_authenticated:  ##PROD##
+            return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
         user = self.request.user
-        meal_id = self.request.data.get("meal")
-        logger.warning(f"먛. user: {user.pk}, meal_id: {meal_id}")
+
+        # user = get_object_or_404(User, pk=int(request.data.get("user")))  ##DEV##
+        meal_id = request.data.get("meal")
+        if not meal_id:
+            return Response({"error": "meal_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            meal_id = int(meal_id)
+        except ValueError:
+            return Response({"error": "Invalid meal_id"}, status=status.HTTP_400_BAD_REQUEST)
 
         # 이미 좋아요를 눌렀는지 확인
-        existing_like = UserMealLike.objects.filter(user=user.username, meal=meal_id).first()  # noqa: E501
+        meal = get_object_or_404(UnitMenu, pk=meal_id)
+        existing_like = UserMealLike.objects.filter(user=user.id, meal=meal_id).first()  # noqa: E501
 
         if existing_like:
             # 이미 좋아요를 누른 상태에서 다시 누르면 좋아요 취소
@@ -58,7 +69,7 @@ class MealLikeViewSet(viewsets.ModelViewSet):
             return Response({"message": "좋아요 취소됨"}, status=status.HTTP_200_OK)
         else:
             # 좋아요를 누르지 않은 상태에서 누르면 좋아요 추가
-            like_data = {"user": user.username, "meal": meal_id}
+            like_data = {"user": user.id, "meal": meal_id}
             serializer = self.get_serializer(data=like_data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -70,10 +81,10 @@ class MealLikeViewSet(viewsets.ModelViewSet):
 
 
 class UserLikedMeals(viewsets.ViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  ##PROD##
 
     def list(self, request):
-        user = request.user
+        user = self.request.user  ##PROD##
         liked_Meals = UserMealLike.objects.filter(user=user).values_list('meal', flat=True)  # noqa: E501
         Meals = UnitMenu.objects.filter(id__in=liked_Meals)
         serializer = UnitMenuSerializer(Meals, many=True)
