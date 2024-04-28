@@ -44,6 +44,22 @@ class DailyMenuViewSet(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+class MealLikeRankingView(APIView):
+    # queryset = DailyMenu.objects.all()
+    # serializer_class = DailyMenuSerializer
+
+    def get(self, request, format=None):
+        try:
+            menus = UnitMenu.objects \
+                .filter(like_count__gte=1) \
+                .order_by('-like_count')[:10]
+            
+            serializer = UnitMenuSerializer(menus, many=True)
+            return Response(serializer.data)
+        except UnitMenu.DoesNotExist:
+            return []
+
+
 class MealLikeViewSet(viewsets.ModelViewSet):
     queryset = UserMealLike.objects.all()
     serializer_class = UserMealLikeSerializer
