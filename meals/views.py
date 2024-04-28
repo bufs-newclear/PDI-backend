@@ -52,7 +52,8 @@ class MealLikeRankingView(APIView):
         try:
             menus = UnitMenu.objects \
                 .filter(like_count__gte=1) \
-                .order_by('-like_count')[:10]
+                .order_by('-like_count') \
+                .order_by('name')[:10]
             
             serializer = UnitMenuSerializer(menus, many=True)
             return Response(serializer.data)
