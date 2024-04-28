@@ -12,10 +12,19 @@ import logging
 
 
 logger = logging.getLogger(__name__)
+
 class UnitMenuViewSet(viewsets.ModelViewSet):
     queryset = UnitMenu.objects.all()
     serializer_class = UnitMenuSerializer
     permission_classes = [HasEditPermission]  ##PROD##
+    def get_queryset(self):
+        queryset = self.queryset
+        
+        since_date = self.request.query_params.get('sinceDate', '1970-01-01')
+        until_date = self.request.query_params.get('untilDate', '9999-12-31')
+
+        res = queryset.filter(date__gte=since_date, date__lte=until_date)
+        return res
 
 
 class DailyMenuViewSet(APIView):
