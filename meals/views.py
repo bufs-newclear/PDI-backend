@@ -58,11 +58,12 @@ class MealLikeRankingView(APIView):
     def get(self, request, format=None):
         try:
             menus = UnitMenu.objects \
+                .filter(meal_type='lunch') \
                 .filter(like_count__gte=1) \
                 .order_by('-like_count') \
                 .order_by('name')[:10]
             
-            serializer = UnitMenuSerializer(menus, many=True)
+            serializer = UnitMenuSerializer(menus, many=True, context={'request': request})
             return Response(serializer.data)
         except UnitMenu.DoesNotExist:
             return []

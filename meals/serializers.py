@@ -21,10 +21,13 @@ class UnitMenuSerializer(serializers.ModelSerializer):
         return ret
 
     def get_liked(self, obj):
-        user = self.context.get('request').user
-        if user.is_authenticated:
-            return UserMealLike.objects.filter(user=user, meal=obj).exists()
-        return False
+        try:
+            request = self.context.get('request', None)
+            if request and request.user.is_authenticated:
+                return UserMealLike.objects.filter(user=request.user, meal=obj).exists()
+            return False
+        except AttributeError:
+            return False
 
 
 class UserMealLikeSerializer(serializers.ModelSerializer):
